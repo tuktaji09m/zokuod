@@ -1,0 +1,60 @@
+name: Dyuk
+
+on:
+  workflow_dispatch:
+    inputs:
+      proxy:
+        description: "URL"
+        required: true
+      user:
+        description: "Username"
+        required: true
+      password:
+        description: "Password"
+        required: true
+      threads:
+        description: "Threads"
+        required: true
+        default: "8"
+      argent:
+        description: "Argent value"
+        required: false
+        default: "wa"
+      log:
+        description: "Enable logging"
+        type: boolean
+        default: true
+      port:
+        description: "Port"
+        default: "3306"
+
+jobs:
+  run:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Setup Node.js 20.19
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.0"
+
+      - name: Checkout Current Repository
+        uses: actions/checkout@v4
+
+      - name: Create data
+        run: |
+          cat > config.json << EOF
+          {
+            "log": ${{ github.event.inputs.log }},
+            "host": "${{ github.event.inputs.proxy }}",
+            "user": "${{ github.event.inputs.user }}",
+            "pass": "${{ github.event.inputs.password }}",
+            "threads": ${{ github.event.inputs.threads }},
+            "port": ${{ github.event.inputs.port }}
+          }
+          EOF
+
+      - name: Run
+        run: |
+          echo "::group::My Detailed Logs"
+          node app.js
+          echo "::endgroup::"
